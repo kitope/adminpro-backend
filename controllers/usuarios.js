@@ -3,11 +3,21 @@ const { response, request } = require('express')
 const bcrypt = require('bcryptjs')
 const { generarJWT } = require('../helpers/jwt')
 const getUsuarios = async(req = request, res = response) => {
-    const usuario = await Usuario.find({}, 'nombre email role')
+    let { desde } = req.query
+    desde = Number(desde) || 0
+    const [usuarios, total] = await Promise.all([
+        Usuario
+        .find({}, 'nombre email role')
+        .skip(desde)
+        .limit(5),
+        Usuario
+        .countDocuments()
+    ])
     res.json({
         status: 'ok',
-        usuario,
-        uid: req.uid
+        usuarios,
+        uid: req.uid,
+        total
     })
 }
 const postUsuarios = async(req, res = response) => {
