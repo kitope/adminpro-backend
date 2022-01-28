@@ -29,10 +29,25 @@ const postHospitales = async(req = request, res = response) => {
 
 }
 const putHospitales = async(req = request, res = response) => {
+    const { id } = req.params
+    const { nombre } = req.body
+    const uid = req.uid
     try {
+        const hospitalDB = await Hospital.findById(id)
+        if (!hospitalDB) {
+            return res.status(404).json({
+                status: false,
+                msg: 'Hospital no encontrado por id'
+            })
+        }
+        const cambiosHospital = {
+            ...req.body,
+            usuario: uid
+        }
+        const hospitalUpdate = await Hospital.findByIdAndUpdate(id, cambiosHospital, { new: true })
         res.json({
             status: true,
-            msg: 'putHospitales'
+            hospitalUpdate
         })
     } catch (error) {
         console.log(error)
@@ -43,10 +58,19 @@ const putHospitales = async(req = request, res = response) => {
     }
 }
 const deleteHospitales = async(req = request, res = response) => {
+    const { id } = req.params
     try {
+        const hospitalDB = await Hospital.findById(id)
+        if (!hospitalDB) {
+            return res.status(404).json({
+                status: false,
+                msg: 'Hospital no encontrado por id'
+            })
+        }
+        await Hospital.findByIdAndDelete(id)
         res.json({
             status: true,
-            msg: 'deleteHospitales'
+            msg: 'Hospital eliminado'
         })
     } catch (error) {
         console.log(error)
